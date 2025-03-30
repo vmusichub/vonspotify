@@ -1,0 +1,3 @@
+name = "vonspotify"
+main = "src/index.js"  # Path to your Worker entry file
+compatibility_date = "2025-03-30"
