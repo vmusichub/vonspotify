@@ -10,8 +10,12 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
+        const error = params.get('error');
 
-        if (code) {
+        if (error) {
+            alert(`Spotify authentication error: ${error}`);
+            window.location.href = 'https://vmusichub.com/#vonspotify';
+        } else if (code) {
             fetch('https://spotify-auth.vonmusichub.workers.dev', {
                 method: 'POST',
                 headers: {
@@ -19,20 +23,25 @@
                 },
                 body: JSON.stringify({ code: code })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.access_token) {
+                    localStorage.setItem('spotify_token', data.access_token);
                     localStorage.setItem('spotify_pfp', data.profile_picture);
                     localStorage.setItem('spotify_name', data.user_name);
                     window.location.href = 'https://vmusichub.com/#vonspotify';
                 } else {
-                    alert('Failed to authenticate.');
-                    window.location.href = 'https://vmusichub.com/#vonspotify';
+                    throw new Error('No access token received');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Authentication failed.');
+                alert('Authentication failed. Please try again.');
                 window.location.href = 'https://vmusichub.com/#vonspotify';
             });
         } else {
