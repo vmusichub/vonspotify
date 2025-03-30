@@ -1,49 +1,81 @@
-// Define constants
-const REDIRECT_URI = 'https://vmusichub.github.io/vonspotify/redirect.html';
-const BACKEND_URL = 'https://your-backend.com/auth'; // Change this to your actual backend URL
-
-// This function will be called after the authorization code is received
-function authenticateSpotify(code) {
-    axios.post(`${BACKEND_URL}/callback`, { code })
-        .then(response => {
-            const accessToken = response.data.access_token;
-            fetchUserProfile(accessToken);
-        })
-        .catch(error => {
-            console.error('Error exchanging code for token:', error);
-            alert('Authentication failed.');
-            window.location.href = 'https://vmusichub.com/#vonspotify';
+// spotify_auth.js - Final Version
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for Spotify auth data in localStorage
+    const profilePicUrl = localStorage.getItem('spotify_pfp');
+    const userName = localStorage.getItem('spotify_name');
+    const accessToken = localStorage.getItem('spotify_token');
+    
+    // Get DOM elements
+    const pfpElement = document.getElementById('spotify_pfp');
+    const nameElement = document.getElementById('spotify_name');
+    const loginButton = document.getElementById('spotify_login');
+    const logoutButton = document.getElementById('spotify_logout'); // Optional: Add logout button
+    
+    // If user is authenticated
+    if (profilePicUrl && userName && accessToken) {
+        if (pfpElement && nameElement && loginButton) {
+            // Update profile display
+            pfpElement.src = profilePicUrl;
+            pfpElement.alt = `${userName}'s Spotify Profile Picture`;
+            nameElement.textContent = userName;
+            
+            // Show profile, hide login button
+            pfpElement.style.display = 'block';
+            nameElement.style.display = 'block';
+            loginButton.style.display = 'none';
+            
+            // Show logout button if exists
+            if (logoutButton) {
+                logoutButton.style.display = 'block';
+            }
+            
+            // Optional: Fetch additional Spotify data
+            fetchAdditionalSpotifyData(accessToken);
+        }
+    } else {
+        // Clear any existing data if not fully authenticated
+        localStorage.removeItem('spotify_pfp');
+        localStorage.removeItem('spotify_name');
+        localStorage.removeItem('spotify_token');
+    }
+    
+    // Optional: Add logout functionality
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('spotify_pfp');
+            localStorage.removeItem('spotify_name');
+            localStorage.removeItem('spotify_token');
+            window.location.reload();
         });
-}
+    }
+});
 
-// This function fetches the user's Spotify profile using the access token
-function fetchUserProfile(accessToken) {
-    axios.get('https://api.spotify.com/v1/me', {
-        headers: { 'Authorization': `Bearer ${accessToken}` }
+// Optional: Function to fetch additional Spotify data
+function fetchAdditionalSpotifyData(accessToken) {
+    // Example: Get user's top tracks or playlists
+    fetch('https://api.spotify.com/v1/me/top/tracks?limit=5', {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
     })
-    .then(response => {
-        updateProfile(response.data);
+    .then(response => response.json())
+    .then(data => {
+        console.log('Top tracks:', data);
+        // You could display these in your UI
     })
     .catch(error => {
-        console.error('Error fetching user profile:', error);
-        alert('Could not fetch user profile.');
+        console.error('Error fetching additional data:', error);
     });
 }
 
-// Check if user data is saved in localStorage
-window.onload = function() {
-    const profilePicUrl = window.localStorage.getItem('spotify_pfp');
-    const userName = window.localStorage.getItem('spotify_name');
-
-    if (profilePicUrl && userName) {
-        document.getElementById('spotify_pfp').src = profilePicUrl;
-        document.getElementById('spotify_name').textContent = userName;
-
-        // Make the elements visible
-        document.getElementById('spotify_pfp').style.visibility = 'visible';
-        document.getElementById('spotify_name').style.visibility = 'visible';
-
-        // Optionally, hide the login button after successful login
-        document.getElementById('spotify_login').style.visibility = 'hidden';
-    }
-}
+// Handle the Spotify login button click (alternative to embed code)
+document.getElementById('spotify_login')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const CLIENT_ID = '3644afee558843dd8aadaec4d0a6ebb1';
+    const REDIRECT_URI = encodeURIComponent('https://vmusichub.github.io/VonSpotify/redirect.html');
+    const SCOPE = encodeURIComponent('user-read-private user-read-email user-top-read');
+    
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}`;
+    window.location.href = authUrl;
+});
