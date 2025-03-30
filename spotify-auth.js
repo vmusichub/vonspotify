@@ -1,5 +1,5 @@
 // Define constants
-const REDIRECT_URI = 'https://vmusichub.github.io/VonSpotify/redirect.html';
+const REDIRECT_URI = 'https://vmusichub.github.io/vonspotify/redirect.html';
 const BACKEND_URL = 'https://your-backend.com/auth'; // Change this to your actual backend URL
 
 // This function will be called after the authorization code is received
