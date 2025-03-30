@@ -1,64 +1,64 @@
-// spotify_auth.js
+// Define constants
+const CLIENT_ID = '3644afee558843dd8aadaec4d0a6ebb1';
+const CLIENT_SECRET = '8786f75ee7cd4e8cb5bb5e3e45c3c101'; 
+const REDIRECT_URI = 'https://vmusichub.github.io/VonSpotify/redirect.html';
 
-// Spotify credentials and redirect URI
-const clientId = '3644afee558843dd8aadaec4d0a6ebb1';
-const redirectUri = 'https://vmusichub.github.io/VonSpotify/redirect.html';
-
-// Scope required for fetching user data
-const scope = 'user-read-private user-read-email';
-
-// Spotify login URL
-const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scope}`;
-
-// Check if the access token exists in the URL
-function getAccessTokenFromUrl() {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    return hashParams.get('access_token');
+// This function will be called after the authorization code is received
+function authenticateSpotify(code) {
+    const tokenUrl = 'https://accounts.spotify.com/api/token';
+    
+    // Exchange the authorization code for an access token
+    const data = new URLSearchParams();
+    data.append('grant_type', 'authorization_code');
+    data.append('code', code);
+    data.append('redirect_uri', REDIRECT_URI);
+    data.append('client_id', CLIENT_ID);
+    data.append('client_secret', CLIENT_SECRET);
+    
+    axios.post(tokenUrl, data)
+        .then(response => {
+            const accessToken = response.data.access_token;
+            // Fetch the Spotify user data using the access token
+            fetchUserProfile(accessToken);
+        })
+        .catch(error => {
+            console.error('Error exchanging code for token:', error);
+            alert('Authentication failed.');
+        });
 }
 
-// Update the profile info after successful authorization
-function updateProfileInfo() {
-    const accessToken = getAccessTokenFromUrl();
-    if (!accessToken) {
-        console.log("No access token found.");
-        return;
-    }
-
-    // Fetch the user's Spotify profile
-    fetch('https://api.spotify.com/v1/me', {
-        method: 'GET',
+// This function fetches the user's Spotify profile using the access token
+function fetchUserProfile(accessToken) {
+    const apiUrl = 'https://api.spotify.com/v1/me';
+    
+    axios.get(apiUrl, {
         headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        // Get the profile data
-        const userName = data.display_name;
-        const userImage = data.images[0]?.url || ''; // Get the first image (profile picture)
-
-        // Update the profile picture and name on the Carrd site
-        const spotifyNameElement = document.getElementById('spotify_name');
-        const spotifyPfpElement = document.getElementById('spotify_pfp');
-
-        spotifyNameElement.textContent = userName;
-        spotifyPfpElement.src = userImage;
-
-        // Make them visible
-        spotifyNameElement.style.visibility = 'visible';
-        spotifyPfpElement.style.visibility = 'visible';
+    .then(response => {
+        const userData = response.data;
+        updateProfile(userData);
     })
-    .catch(error => console.error('Error fetching Spotify profile data:', error));
+    .catch(error => {
+        console.error('Error fetching user profile:', error);
+        alert('Could not fetch user profile.');
+    });
 }
 
-// Trigger login when the user clicks the login button
-document.getElementById('spotify_login').addEventListener('click', () => {
-    window.location.href = authUrl;
-});
+// This function updates the profile picture and name in your Carrd site
+function updateProfile(userData) {
+    const profilePicUrl = userData.images[0] ? userData.images[0].url : '';
+    const userName = userData.display_name || 'Spotify User';
 
-// If there's an access token in the URL, update the profile
-window.onload = () => {
-    if (getAccessTokenFromUrl()) {
-        updateProfileInfo();
-    }
-};
+    // Update the Carrd elements using JavaScript
+    document.getElementById('spotify_pfp').src = profilePicUrl;
+    document.getElementById('spotify_name').textContent = userName;
+
+    // Make the elements visible
+    document.getElementById('spotify_pfp').style.visibility = 'visible';
+    document.getElementById('spotify_name').style.visibility = 'visible';
+
+    // Optionally, hide the login button after successful login
+    document.getElementById('spotify_login').style.visibility = 'hidden';
+}
