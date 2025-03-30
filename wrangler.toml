@@ -1,3 +1,3 @@
 name = "vonspotify"
-main = "src/index.js"  # Path to your Worker entry file
+main = "./spotify-auth.js"  # Entry point (your Worker file)
 compatibility_date = "2025-03-30"
