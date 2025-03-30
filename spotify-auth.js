@@ -73,7 +73,7 @@ function fetchAdditionalSpotifyData(accessToken) {
 document.getElementById('spotify_login')?.addEventListener('click', function(e) {
     e.preventDefault();
     const CLIENT_ID = '3644afee558843dd8aadaec4d0a6ebb1';
-    const REDIRECT_URI = encodeURIComponent('https://vmusichub.github.io/VonSpotify/redirect.html');
+    const REDIRECT_URI = encodeURIComponent('https://vmusichub.github.io/vonspotify/redirect.html');
     const SCOPE = encodeURIComponent('user-read-private user-read-email user-top-read');
     
     const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}`;
