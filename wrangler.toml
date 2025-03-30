@@ -1,3 +1,10 @@
-name = "vonspotify"
-main = "./spotify-auth.js"  # Entry point (your Worker file)
-compatibility_date = "2025-03-30"
+name = "spotify-auth"
+main = "worker.js"
+compatibility_date = "2023-05-18"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+workers_dev = true
+
+[vars]
+CLIENT_ID = "3644afee558843dd8aadaec4d0a6ebb1"
+CLIENT_SECRET = "8786f75ee7cd4e8cb5bb5e3e45c3c101"
+REDIRECT_URI = "https://vmusichub.github.io/VonSpotify/redirect.html"
