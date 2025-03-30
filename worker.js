@@ -25,21 +25,35 @@ async function handleRequest(request) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
 
-    if (!tokenResponse.ok) return new Response('Token exchange failed', { status: 500 })
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.text()
+      return new Response(`Token exchange failed: ${error}`, { status: 500 })
+    }
     
     const { access_token } = await tokenResponse.json()
+    
+    // Get user profile
     const profileResponse = await fetch('https://api.spotify.com/v1/me', {
       headers: { 'Authorization': `Bearer ${access_token}` }
     })
 
-    if (!profileResponse.ok) return new Response('Profile fetch failed', { status: 500 })
+    if (!profileResponse.ok) {
+      const error = await profileResponse.text()
+      return new Response(`Profile fetch failed: ${error}`, { status: 500 })
+    }
     
     const { display_name, images } = await profileResponse.json()
+    
     return new Response(JSON.stringify({
       access_token,
-      profile_picture: images[0]?.url,
-      user_name: display_name
-    }), { headers: { 'Content-Type': 'application/json' } })
+      profile_picture: images[0]?.url || '',
+      user_name: display_name || 'Spotify User'
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
     
   } catch (error) {
     return new Response(`Error: ${error.message}`, { status: 500 })
