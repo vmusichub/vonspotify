@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Authentication</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <script>
@@ -13,40 +12,40 @@
         const error = params.get('error');
 
         if (error) {
-            alert(`Spotify authentication error: ${error}`);
-            window.location.href = 'https://vmusichub.com/#vonspotify';
+            // Handle error case
+            localStorage.setItem('spotify_auth_error', error);
+            window.location.href = 'https://vmusichub.com/#vonspotify?auth_error=1';
         } else if (code) {
+            // Exchange code for token
             fetch('https://spotify-auth.vonmusichub.workers.dev', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ code: code })
+                body: JSON.stringify({ code })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.access_token) {
+                    // Store all data in localStorage
                     localStorage.setItem('spotify_token', data.access_token);
                     localStorage.setItem('spotify_pfp', data.profile_picture);
                     localStorage.setItem('spotify_name', data.user_name);
-                    window.location.href = 'https://vmusichub.com/#vonspotify';
+                    // Redirect back to Carrd with success flag
+                    window.location.href = 'https://vmusichub.com/#vonspotify?auth_success=1';
                 } else {
                     throw new Error('No access token received');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Authentication failed. Please try again.');
-                window.location.href = 'https://vmusichub.com/#vonspotify';
+                localStorage.setItem('spotify_auth_error', error.message);
+                window.location.href = 'https://vmusichub.com/#vonspotify?auth_error=1';
             });
         } else {
-            alert('No authorization code found.');
-            window.location.href = 'https://vmusichub.com/#vonspotify';
+            // No code found
+            localStorage.setItem('spotify_auth_error', 'No authorization code found');
+            window.location.href = 'https://vmusichub.com/#vonspotify?auth_error=1';
         }
     </script>
 </body>
