@@ -1,64 +1,53 @@
-// Spotify Authentication for Carrd - Full Solution
-// Handles Carrd's forced URL requirement
-
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Check for existing authentication
-    checkAuthStatus();
+    // Check URL parameters first
+    const urlParams = new URLSearchParams(window.location.search);
+    const authError = urlParams.get('auth_error');
+    const authSuccess = urlParams.get('auth_success');
+
+    if (authError) {
+        const errorMsg = localStorage.getItem('spotify_auth_error') || 'Authentication failed';
+        alert(errorMsg);
+        // Clean up
+        localStorage.removeItem('spotify_auth_error');
+    }
+
+    // Check for Spotify auth data in localStorage
+    const profilePicUrl = localStorage.getItem('spotify_pfp');
+    const userName = localStorage.getItem('spotify_name');
     
-    // 2. Set up the login button with Carrd workaround
-    const loginBtn = document.getElementById('spotify_login');
-    if (loginBtn) {
-        // Carrd workaround - prevent default navigation
-        loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            initiateSpotifyAuth();
-            return false;
-        }, true); // Use capture phase
-        
-        // Additional safety - override any Carrd-generated onclick
-        loginBtn.onclick = null;
+    // Get DOM elements
+    const pfpElement = document.getElementById('spotify_pfp');
+    const nameElement = document.getElementById('spotify_name');
+    const loginButton = document.getElementById('spotify_login');
+    
+    // If user is authenticated
+    if (profilePicUrl && userName) {
+        if (pfpElement && nameElement && loginButton) {
+            // Update profile display
+            pfpElement.src = profilePicUrl || 'https://via.placeholder.com/150';
+            pfpElement.alt = `${userName}'s Spotify Profile Picture`;
+            nameElement.textContent = userName;
+            
+            // Show profile, hide login button
+            pfpElement.style.display = 'block';
+            nameElement.style.display = 'block';
+            loginButton.style.display = 'none';
+        }
+    } else {
+        // Clear any existing data if not fully authenticated
+        localStorage.removeItem('spotify_pfp');
+        localStorage.removeItem('spotify_name');
+        localStorage.removeItem('spotify_token');
     }
 });
 
-function checkAuthStatus() {
-    const profilePic = localStorage.getItem('spotify_pfp');
-    const username = localStorage.getItem('spotify_name');
-    
-    if (profilePic && username) {
-        const pfpElement = document.getElementById('spotify_pfp');
-        const nameElement = document.getElementById('spotify_name');
-        
-        if (pfpElement) {
-            pfpElement.src = profilePic;
-            pfpElement.style.display = 'block';
-        }
-        
-        if (nameElement) {
-            nameElement.textContent = username;
-            nameElement.style.display = 'block';
-        }
-    }
-}
-
-function initiateSpotifyAuth() {
+// Handle the Spotify login button click
+document.getElementById('spotify_login')?.addEventListener('click', function(e) {
+    e.preventDefault();
     const CLIENT_ID = '3644afee558843dd8aadaec4d0a6ebb1';
-    const REDIRECT_URI = encodeURIComponent('https://vmusichub.github.io/vonspotify/redirect.html');
-    const SCOPE = encodeURIComponent('user-read-private user-read-email');
+    const REDIRECT_URI = 'https://vmusichub.github.io/vonspotify/redirect.html';
+    const SCOPE = 'user-read-private user-read-email';
     
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}&show_dialog=true`;
-    
-    // Forced delay to ensure Carrd doesn't intercept
-    setTimeout(() => {
-        window.location.href = authUrl;
-    }, 50);
-}
-
-// Safety measure - override any window.onload handlers Carrd might add
-window.addEventListener('load', function() {
-    const loginBtn = document.getElementById('spotify_login');
-    if (loginBtn) {
-        loginBtn.href = 'javascript:void(0)';
-        loginBtn.onclick = null;
-    }
-}, false);
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPE)}`;
+    window.location.href = authUrl;
+});
