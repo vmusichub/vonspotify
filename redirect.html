@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Authentication</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="spotify_auth.js"></script>
 </head>
 <body>
     <script>
@@ -14,10 +13,30 @@
         const code = params.get('code');  // The authorization code
 
         if (code) {
-            // Pass the code to the spotify_auth.js to get the access token and user data
-            authenticateSpotify(code);
+            // Pass the code to the backend for token exchange
+            fetch('https://your-cloudflare-worker-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.access_token) {
+                    // Redirect back to Carrd with user data
+                    window.localStorage.setItem('spotify_pfp', data.profile_picture);
+                    window.localStorage.setItem('spotify_name', data.user_name);
+                    window.location.href = 'https://vmusichub.com/#vonspotify';
+                } else {
+                    alert('Failed to authenticate.');
+                }
+            })
+            .catch(error => {
+                console.error('Error during token exchange:', error);
+                alert('Authentication failed.');
+            });
         } else {
-            // Handle error (user may have canceled the authorization)
             alert('Authentication failed or was canceled.');
             window.location.href = 'https://vmusichub.com/#vonspotify';
         }
