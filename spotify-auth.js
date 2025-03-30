@@ -1,5 +1,5 @@
 const CLIENT_ID = "3644afee558843dd8aadaec4d0a6ebb1";  
-const REDIRECT_URI = "https://www.vmusichub.com/#spotify";  
+const REDIRECT_URI = "https://vmusichub.github.io/VonSpotify/redirect.html";  
 const SCOPES = "playlist-modify-public playlist-modify-private";  
 
 // Step 1: Redirect user to Spotify Auth Page
