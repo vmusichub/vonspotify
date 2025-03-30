@@ -1,9 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0;url=https://www.vmusichub.com/#callback">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Authorization</title>
+    <script src="spotify_auth.js"></script>
 </head>
 <body>
-    <p>Redirecting to Carrd...</p>
+    <h2>Spotify Authorization Successful!</h2>
+    <p>Enter your playlist details below:</p>
+
+    <div id="playlistForm" style="display: none;">
+        <input type="text" id="playlistName" placeholder="Playlist Name" required>
+        <input type="text" id="playlistDescription" placeholder="Playlist Description">
+        <button id="createPlaylistBtn">Create Playlist</button>
+    </div>
 </body>
 </html>
