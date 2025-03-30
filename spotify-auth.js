@@ -1,3 +1,10 @@
+export default {
+  async fetch(request) {
+    // Your Spotify auth logic here
+    return new Response("Spotify Auth Worker");
+  }
+};
+
 // Define constants
 const REDIRECT_URI = 'https://vmusichub.github.io/vonspotify/redirect.html';
 const BACKEND_URL = 'https://your-backend.com/auth'; // Change this to your actual backend URL
