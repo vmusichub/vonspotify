@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Authorization</title>
-    <script src="spotify_auth.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify Authentication</title>
+  <script>
+    // Redirect back to Carrd after extracting the token
+    window.location.href = "https://vmusichub.github.io/VonSpotify/#" + window.location.hash.substring(1);
+  </script>
 </head>
 <body>
-    <h2>Spotify Authorization Successful!</h2>
-    <p>Enter your playlist details below:</p>
-
-    <div id="playlistForm" style="display: none;">
-        <input type="text" id="playlistName" placeholder="Playlist Name" required>
-        <input type="text" id="playlistDescription" placeholder="Playlist Description">
-        <button id="createPlaylistBtn">Create Playlist</button>
-    </div>
+  <p>Redirecting...</p>
 </body>
 </html>
