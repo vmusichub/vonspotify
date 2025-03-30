@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Authentication</title>
-  <script>
-    // Redirect back to Carrd after extracting the token
-    window.location.href = "https://vmusichub.github.io/VonSpotify/#" + window.location.hash.substring(1);
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Authentication</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="spotify_auth.js"></script>
 </head>
 <body>
-  <p>Redirecting...</p>
+    <script>
+        // Get the query parameters from the URL
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');  // The authorization code
+
+        if (code) {
+            // Pass the code to the spotify_auth.js to get the access token and user data
+            authenticateSpotify(code);
+        } else {
+            // Handle error (user may have canceled the authorization)
+            alert('Authentication failed or was canceled.');
+            window.location.href = 'https://vmusichub.com/#vonspotify';
+        }
+    </script>
 </body>
 </html>
