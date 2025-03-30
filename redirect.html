@@ -8,13 +8,11 @@
 </head>
 <body>
     <script>
-        // Get the query parameters from the URL
         const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');  // The authorization code
+        const code = params.get('code');
 
         if (code) {
-            // Pass the code to the backend for token exchange
-            fetch('https://your-cloudflare-worker-url', {
+            fetch('https://spotify-auth.your-subdomain.workers.dev', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -24,20 +22,21 @@
             .then(response => response.json())
             .then(data => {
                 if (data.access_token) {
-                    // Redirect back to Carrd with user data
-                    window.localStorage.setItem('spotify_pfp', data.profile_picture);
-                    window.localStorage.setItem('spotify_name', data.user_name);
+                    localStorage.setItem('spotify_pfp', data.profile_picture);
+                    localStorage.setItem('spotify_name', data.user_name);
                     window.location.href = 'https://vmusichub.com/#vonspotify';
                 } else {
                     alert('Failed to authenticate.');
+                    window.location.href = 'https://vmusichub.com/#vonspotify';
                 }
             })
             .catch(error => {
-                console.error('Error during token exchange:', error);
+                console.error('Error:', error);
                 alert('Authentication failed.');
+                window.location.href = 'https://vmusichub.com/#vonspotify';
             });
         } else {
-            alert('Authentication failed or was canceled.');
+            alert('No authorization code found.');
             window.location.href = 'https://vmusichub.com/#vonspotify';
         }
     </script>
