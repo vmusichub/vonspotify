@@ -1,41 +1,64 @@
-const client_id = '3644afee558843dd8aadaec4d0a6ebb1'; // Your Spotify client ID
-const redirect_uri = 'https://vmusichub.github.io/VonSpotify/redirect.html'; // Your redirect URI
+// spotify_auth.js
 
-// The scopes you want to request for the user
-const scopes = 'user-library-read user-read-private user-read-email';
+// Spotify credentials and redirect URI
+const clientId = '3644afee558843dd8aadaec4d0a6ebb1';
+const redirectUri = 'https://vmusichub.github.io/VonSpotify/redirect.html';
 
-// The Spotify authorization URL
-const authUrl = `https://accounts.spotify.com/authorize?response_type=token&client_id=${client_id}&scope=${scopes}&redirect_uri=${redirect_uri}`;
+// Scope required for fetching user data
+const scope = 'user-read-private user-read-email';
 
-function loginWithSpotify() {
-  window.location.href = authUrl; // Redirect to Spotify authorization page
+// Spotify login URL
+const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scope}`;
+
+// Check if the access token exists in the URL
+function getAccessTokenFromUrl() {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    return hashParams.get('access_token');
 }
 
-function getProfileData() {
-  const urlParams = new URLSearchParams(window.location.hash.substring(1));
-  const access_token = urlParams.get('access_token');
+// Update the profile info after successful authorization
+function updateProfileInfo() {
+    const accessToken = getAccessTokenFromUrl();
+    if (!accessToken) {
+        console.log("No access token found.");
+        return;
+    }
 
-  if (access_token) {
+    // Fetch the user's Spotify profile
     fetch('https://api.spotify.com/v1/me', {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${access_token}`
-      }
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        }
     })
     .then(response => response.json())
     .then(data => {
-      // Display profile information on the page
-      document.getElementById('spotify-profile').innerHTML = `
-        <img src="${data.images[0].url}" alt="Profile Picture" />
-        <h2>${data.display_name}</h2>
-      `;
+        // Get the profile data
+        const userName = data.display_name;
+        const userImage = data.images[0]?.url || ''; // Get the first image (profile picture)
+
+        // Update the profile picture and name on the Carrd site
+        const spotifyNameElement = document.getElementById('spotify_name');
+        const spotifyPfpElement = document.getElementById('spotify_pfp');
+
+        spotifyNameElement.textContent = userName;
+        spotifyPfpElement.src = userImage;
+
+        // Make them visible
+        spotifyNameElement.style.visibility = 'visible';
+        spotifyPfpElement.style.visibility = 'visible';
     })
-    .catch(error => {
-      console.error('Error fetching Spotify profile:', error);
-    });
-  } else {
-    console.log('No access token found in URL');
-  }
+    .catch(error => console.error('Error fetching Spotify profile data:', error));
 }
 
-window.onload = getProfileData;
+// Trigger login when the user clicks the login button
+document.getElementById('spotify_login').addEventListener('click', () => {
+    window.location.href = authUrl;
+});
+
+// If there's an access token in the URL, update the profile
+window.onload = () => {
+    if (getAccessTokenFromUrl()) {
+        updateProfileInfo();
+    }
+};
