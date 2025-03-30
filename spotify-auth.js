@@ -30,19 +30,20 @@ function fetchUserProfile(accessToken) {
     });
 }
 
-// This function updates the profile picture and name in your Carrd site
-function updateProfile(userData) {
-    const profilePicUrl = userData.images.length > 0 ? userData.images[0].url : '';
-    const userName = userData.display_name || 'Spotify User';
+// Check if user data is saved in localStorage
+window.onload = function() {
+    const profilePicUrl = window.localStorage.getItem('spotify_pfp');
+    const userName = window.localStorage.getItem('spotify_name');
 
-    // Update the Carrd elements using JavaScript
-    document.getElementById('spotify_pfp').src = profilePicUrl;
-    document.getElementById('spotify_name').textContent = userName;
+    if (profilePicUrl && userName) {
+        document.getElementById('spotify_pfp').src = profilePicUrl;
+        document.getElementById('spotify_name').textContent = userName;
 
-    // Make the elements visible
-    document.getElementById('spotify_pfp').style.visibility = 'visible';
-    document.getElementById('spotify_name').style.visibility = 'visible';
+        // Make the elements visible
+        document.getElementById('spotify_pfp').style.visibility = 'visible';
+        document.getElementById('spotify_name').style.visibility = 'visible';
 
-    // Optionally, hide the login button after successful login
-    document.getElementById('spotify_login').style.visibility = 'hidden';
+        // Optionally, hide the login button after successful login
+        document.getElementById('spotify_login').style.visibility = 'hidden';
+    }
 }
