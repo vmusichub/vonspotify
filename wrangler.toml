@@ -8,6 +8,3 @@ workers_dev = true
 CLIENT_ID = "3644afee558843dd8aadaec4d0a6ebb1"
 CLIENT_SECRET = "8786f75ee7cd4e8cb5bb5e3e45c3c101"
 REDIRECT_URI = "https://vmusichub.github.io/vonspotify/redirect.html"
-
-[build]
-upload.format = "service-worker"
