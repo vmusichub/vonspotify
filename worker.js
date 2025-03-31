@@ -25,10 +25,13 @@ async function handleRequest(request) {
       return new Response("Missing environment variables", { status: 500, headers: corsHeaders() });
     }
 
-    const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
+    const tokenUrl = "https://accounts.spotify.com/api/token";
+    const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
+
+    const tokenResponse = await fetch(tokenUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
+        "Authorization": `Basic ${credentials}`,
         "Content-Type": "application/x-www-form-urlencoded"
       },
       body: new URLSearchParams({
@@ -43,6 +46,7 @@ async function handleRequest(request) {
     }
 
     const { access_token } = await tokenResponse.json();
+
     if (!access_token) {
       return new Response("Failed to retrieve access token", { status: 500, headers: corsHeaders() });
     }
@@ -57,10 +61,14 @@ async function handleRequest(request) {
 
     const { display_name, images } = await profileResponse.json();
 
-    return new Response(JSON.stringify({
-      profile_picture: images?.[0]?.url || "",
-      user_name: display_name || "Spotify User"
-    }), { headers: corsHeaders() });
+    return new Response(
+      JSON.stringify({
+        access_token,
+        profile_picture: images.length > 0 ? images[0].url : "",
+        user_name: display_name || "Spotify User"
+      }),
+      { headers: corsHeaders() }
+    );
 
   } catch (error) {
     return new Response(`Error: ${error.message}`, { status: 500, headers: corsHeaders() });
@@ -70,9 +78,10 @@ async function handleRequest(request) {
 function corsHeaders() {
   return {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": "https://vmusichub.com",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400"
   };
 }
 
