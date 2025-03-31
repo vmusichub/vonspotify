@@ -35,7 +35,7 @@ async function handleRequest(request) {
 
     const { access_token } = await tokenResponse.json();
 
-    // Запрос профиля пользователя
+    // Fetch user profile data
     const profileResponse = await fetch("https://api.spotify.com/v1/me", {
       headers: { "Authorization": `Bearer ${access_token}` }
     });
@@ -46,6 +46,7 @@ async function handleRequest(request) {
 
     const { display_name, images } = await profileResponse.json();
 
+    // Return the access token, profile picture, and user name
     return new Response(JSON.stringify({
       access_token,
       profile_picture: images.length > 0 ? images[0].url : "",
@@ -56,7 +57,6 @@ async function handleRequest(request) {
         "Access-Control-Allow-Origin": "*"
       }
     });
-
   } catch (error) {
     return new Response(`Error: ${error.message}`, { status: 500 });
   }
