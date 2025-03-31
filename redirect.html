@@ -23,14 +23,14 @@
 
                 const data = await response.json();
 
-                if (data.profile_picture && data.user_name) {
+                if (data.access_token) {
                     localStorage.setItem("spotify_pfp", data.profile_picture);
                     localStorage.setItem("spotify_name", data.user_name);
+                    window.location.href = "https://vmusichub.com/#vonspotify";
+                } else {
+                    window.location.href = "https://vmusichub.com/#vonspotify";
                 }
-
-                window.location.href = "https://vmusichub.com/#vonspotify";
             } catch (error) {
-                console.error("Error:", error);
                 window.location.href = "https://vmusichub.com/#vonspotify";
             }
         })();
