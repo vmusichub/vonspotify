@@ -16,7 +16,7 @@
             }
 
             try {
-                const response = await fetch("https://your-cloudflare-worker-url.com/auth", {
+                const response = await fetch("https://spotify-auth.vonmusichub.workers.dev/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ code })
@@ -26,10 +26,14 @@
 
                 if (data.access_token) {
                     localStorage.setItem("spotify_token", data.access_token);
-
-                    // Store user profile data
                     localStorage.setItem("spotify_pfp", data.profile_picture);
                     localStorage.setItem("spotify_name", data.user_name);
+
+                    // Store user details in localStorage
+                    localStorage.setItem("spotify_user", JSON.stringify({
+                        display_name: data.user_name,
+                        images: [{ url: data.profile_picture }]
+                    }));
 
                     // Redirect back to Carrd page
                     window.location.href = "https://vmusichub.com/#vonspotify";
