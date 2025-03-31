@@ -14,7 +14,7 @@ async function handleRequest(request) {
     }
 
     const tokenUrl = "https://accounts.spotify.com/api/token";
-    const credentials = btoa("3644afee558843dd8aadaec4d0a6ebb1:8786f75ee7cd4e8cb5bb5e3e45c3c101"); // client_id:client_secret
+    const credentials = btoa("3644afee558843dd8aadaec4d0a6ebb1:8786f75ee7cd4e8cb5bb5e3e45c3c101");
 
     const tokenResponse = await fetch(tokenUrl, {
       method: "POST",
@@ -35,7 +35,7 @@ async function handleRequest(request) {
 
     const { access_token } = await tokenResponse.json();
 
-    // Fetch user profile data
+    // Fetch the user's profile
     const profileResponse = await fetch("https://api.spotify.com/v1/me", {
       headers: { "Authorization": `Bearer ${access_token}` }
     });
@@ -46,7 +46,6 @@ async function handleRequest(request) {
 
     const { display_name, images } = await profileResponse.json();
 
-    // Return the access token, profile picture, and user name
     return new Response(JSON.stringify({
       access_token,
       profile_picture: images.length > 0 ? images[0].url : "",
