@@ -26,16 +26,10 @@
 
                 if (data.access_token) {
                     localStorage.setItem("spotify_token", data.access_token);
-                    
-                    // Fetch user profile data
-                    const profileResponse = await fetch("https://api.spotify.com/v1/me", {
-                        headers: { "Authorization": `Bearer ${data.access_token}` }
-                    });
 
-                    const userProfile = await profileResponse.json();
-                    
-                    // Store user details in localStorage
-                    localStorage.setItem("spotify_user", JSON.stringify(userProfile));
+                    // Store user profile data
+                    localStorage.setItem("spotify_pfp", data.profile_picture);
+                    localStorage.setItem("spotify_name", data.user_name);
 
                     // Redirect back to Carrd page
                     window.location.href = "https://vmusichub.com/#vonspotify";
