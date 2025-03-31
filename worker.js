@@ -4,7 +4,7 @@ addEventListener("fetch", (event) => {
 
 async function handleRequest(request) {
   if (request.method === "OPTIONS") {
-    return handleCors(); // Handle CORS preflight requests
+    return handleCors();
   }
 
   if (request.method !== "POST") {
@@ -17,7 +17,6 @@ async function handleRequest(request) {
       return new Response("Code required", { status: 400, headers: corsHeaders() });
     }
 
-    // Get CLIENT_ID and CLIENT_SECRET from environment variables
     const CLIENT_ID = globalThis.CLIENT_ID;
     const CLIENT_SECRET = globalThis.CLIENT_SECRET;
     const REDIRECT_URI = globalThis.REDIRECT_URI;
@@ -26,13 +25,10 @@ async function handleRequest(request) {
       return new Response("Missing environment variables", { status: 500, headers: corsHeaders() });
     }
 
-    const tokenUrl = "https://accounts.spotify.com/api/token";
-    const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
-
-    const tokenResponse = await fetch(tokenUrl, {
+    const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
       headers: {
-        "Authorization": `Basic ${credentials}`,
+        "Authorization": `Basic ${btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
         "Content-Type": "application/x-www-form-urlencoded"
       },
       body: new URLSearchParams({
@@ -47,12 +43,10 @@ async function handleRequest(request) {
     }
 
     const { access_token } = await tokenResponse.json();
-
     if (!access_token) {
       return new Response("Failed to retrieve access token", { status: 500, headers: corsHeaders() });
     }
 
-    // Fetch user profile data
     const profileResponse = await fetch("https://api.spotify.com/v1/me", {
       headers: { "Authorization": `Bearer ${access_token}` }
     });
@@ -63,36 +57,25 @@ async function handleRequest(request) {
 
     const { display_name, images } = await profileResponse.json();
 
-    const responseData = {
-      access_token,
-      profile_picture: images.length > 0 ? images[0].url : "",
+    return new Response(JSON.stringify({
+      profile_picture: images?.[0]?.url || "",
       user_name: display_name || "Spotify User"
-    };
-
-    return new Response(JSON.stringify(responseData), {
-      headers: corsHeaders()
-    });
+    }), { headers: corsHeaders() });
 
   } catch (error) {
     return new Response(`Error: ${error.message}`, { status: 500, headers: corsHeaders() });
   }
 }
 
-// Function to handle CORS headers
 function corsHeaders() {
   return {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "https://vmusichub.com",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Max-Age": "86400"
+    "Access-Control-Allow-Headers": "Content-Type"
   };
 }
 
-// Handle CORS preflight requests (OPTIONS)
 function handleCors() {
-  return new Response(null, {
-    status: 204,
-    headers: corsHeaders()
-  });
+  return new Response(null, { status: 204, headers: corsHeaders() });
 }
