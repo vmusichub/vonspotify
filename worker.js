@@ -4,7 +4,7 @@ addEventListener("fetch", (event) => {
 
 async function handleRequest(request) {
   if (request.method === "OPTIONS") {
-    return handleCors();
+    return handleCors(); // Handle CORS preflight requests
   }
 
   if (request.method !== "POST") {
@@ -17,8 +17,17 @@ async function handleRequest(request) {
       return new Response("Code required", { status: 400, headers: corsHeaders() });
     }
 
+    // Get CLIENT_ID and CLIENT_SECRET from environment variables
+    const CLIENT_ID = globalThis.CLIENT_ID;
+    const CLIENT_SECRET = globalThis.CLIENT_SECRET;
+    const REDIRECT_URI = globalThis.REDIRECT_URI;
+
+    if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
+      return new Response("Missing environment variables", { status: 500, headers: corsHeaders() });
+    }
+
     const tokenUrl = "https://accounts.spotify.com/api/token";
-    const credentials = btoa(`${env.CLIENT_ID}:${env.CLIENT_SECRET}`);
+    const credentials = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
 
     const tokenResponse = await fetch(tokenUrl, {
       method: "POST",
@@ -29,7 +38,7 @@ async function handleRequest(request) {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        redirect_uri: env.REDIRECT_URI
+        redirect_uri: REDIRECT_URI
       })
     });
 
@@ -43,7 +52,7 @@ async function handleRequest(request) {
       return new Response("Failed to retrieve access token", { status: 500, headers: corsHeaders() });
     }
 
-    // Запрос профиля пользователя
+    // Fetch user profile data
     const profileResponse = await fetch("https://api.spotify.com/v1/me", {
       headers: { "Authorization": `Bearer ${access_token}` }
     });
@@ -69,7 +78,7 @@ async function handleRequest(request) {
   }
 }
 
-// Функция для CORS-заголовков
+// Function to handle CORS headers
 function corsHeaders() {
   return {
     "Content-Type": "application/json",
@@ -80,7 +89,7 @@ function corsHeaders() {
   };
 }
 
-// Обработка CORS preflight-запросов
+// Handle CORS preflight requests (OPTIONS)
 function handleCors() {
   return new Response(null, {
     status: 204,
