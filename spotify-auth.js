@@ -12,22 +12,22 @@ function initSpotifyAuth() {
 
         if (pfpElement) {
             pfpElement.src = profilePic;
-            pfpElement.style.display = "block";
+            pfpElement.style.visibility = "visible";
         }
         if (nameElement) {
             nameElement.textContent = userName;
-            nameElement.style.display = "block";
+            nameElement.style.visibility = "visible";
         }
         if (loginBtn) {
-            loginBtn.style.display = "none";
+            loginBtn.style.display = "none";  // Hide login button after login
         }
     } else {
         console.log("No auth data found");
         if (loginBtn) {
-            loginBtn.style.display = "block";
+            loginBtn.style.visibility = "visible";
         }
     }
 }
 
-// Запуск при загрузке страницы
+// Initialize on page load
 document.addEventListener("DOMContentLoaded", initSpotifyAuth);
