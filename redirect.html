@@ -3,56 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Auth Redirect</title>
-</head>
-<body>
+    <title>Redirecting...</title>
     <script>
-        console.log("Redirect page loaded");
+        (async function() {
+            // Get the authorization code from the URL
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get("code");
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get("code");
-        const error = urlParams.get("error");
-
-        if (error) {
-            console.error("Spotify auth error:", error);
-            localStorage.setItem("spotify_auth_error", error);
-            window.location.href = "https://vmusichub.com/#vonspotify?error=1";
-            return;
-        }
-
-        if (!code) {
-            console.error("No authorization code found");
-            window.location.href = "https://vmusichub.com/#vonspotify?error=1";
-            return;
-        }
-
-        console.log("Authorization code received, exchanging for token...");
-
-        fetch("https://spotify-auth.vonmusichub.workers.dev", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.access_token) {
-                throw new Error("No access token received");
+            // If there's no code, redirect back to the main page
+            if (!code) {
+                console.error("No authorization code found.");
+                window.location.href = "https://vmusichub.com/#vonspotify";
+                return;
             }
 
-            console.log("Authentication successful, storing data...");
+            try {
+                // Send the authorization code to Cloudflare Worker for token exchange
+                const response = await fetch("https://spotify-auth.vonmusichub.workers.dev", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code })
+                });
 
-            localStorage.clear();
-            localStorage.setItem("spotify_token", data.access_token);
-            localStorage.setItem("spotify_pfp", data.profile_picture || "");
-            localStorage.setItem("spotify_name", data.user_name || "Spotify User");
+                const data = await response.json();
 
-            console.log("Redirecting back to Carrd...");
-            window.location.href = "https://vmusichub.com/#vonspotify?success=1";
-        })
-        .catch(error => {
-            console.error("Error during authentication:", error);
-            window.location.href = "https://vmusichub.com/#vonspotify?error=1";
-        });
+                // If we successfully receive an access token, save it and redirect
+                if (data.access_token) {
+                    localStorage.setItem("spotify_token", data.access_token);
+                    window.location.href = "https://vmusichub.com/#vonspotify"; // Redirect back to Carrd page
+                } else {
+                    console.error("Error exchanging code:", data);
+                    window.location.href = "https://vmusichub.com/#vonspotify"; // Redirect anyway in case of failure
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                window.location.href = "https://vmusichub.com/#vonspotify"; // Redirect on error
+            }
+        })();
     </script>
+</head>
+<body>
+    <p>Redirecting...</p>
 </body>
 </html>
