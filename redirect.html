@@ -23,19 +23,13 @@
                 });
 
                 const data = await response.json();
+                console.log("Data received from worker:", data);
 
                 if (data.access_token) {
-                    localStorage.setItem("spotify_token", data.access_token);
                     localStorage.setItem("spotify_pfp", data.profile_picture);
                     localStorage.setItem("spotify_name", data.user_name);
 
-                    // Store user details in localStorage
-                    localStorage.setItem("spotify_user", JSON.stringify({
-                        display_name: data.user_name,
-                        images: [{ url: data.profile_picture }]
-                    }));
-
-                    // Redirect back to Carrd page
+                    // Redirect to the Carrd page to update the UI
                     window.location.href = "https://vmusichub.com/#vonspotify";
                 } else {
                     console.error("Error exchanging code:", data);
