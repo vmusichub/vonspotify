@@ -6,20 +6,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const loginBtn = document.getElementById("spotify_login");
 
     if (profilePic && userName) {
-        if (pfpElement) {
-            pfpElement.src = profilePic;
-            pfpElement.style.display = "block";
-        }
-        if (nameElement) {
-            nameElement.textContent = userName;
-            nameElement.style.display = "block";
-        }
-        if (loginBtn) {
-            loginBtn.style.display = "none";
-        }
+        if (pfpElement) pfpElement.src = profilePic;
+        if (nameElement) nameElement.textContent = userName;
+        if (loginBtn) loginBtn.style.display = "none";
     } else {
         if (pfpElement) pfpElement.style.display = "none";
         if (nameElement) nameElement.style.display = "none";
-        if (loginBtn) loginBtn.style.display = "block";
     }
 });
