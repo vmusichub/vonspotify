@@ -8,6 +8,7 @@
         (async function() {
             const params = new URLSearchParams(window.location.search);
             const code = params.get("code");
+
             if (!code) {
                 window.location.href = "https://vmusichub.com/#vonspotify";
                 return;
@@ -21,13 +22,15 @@
                 });
 
                 const data = await response.json();
+
                 if (data.access_token) {
                     localStorage.setItem("spotify_pfp", data.profile_picture);
                     localStorage.setItem("spotify_name", data.user_name);
                 }
+
                 window.location.href = "https://vmusichub.com/#vonspotify";
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Authorization error:", error);
                 window.location.href = "https://vmusichub.com/#vonspotify";
             }
         })();
