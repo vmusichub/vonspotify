@@ -42,7 +42,8 @@ async function handleRequest(request) {
     });
 
     if (!tokenResponse.ok) {
-      return new Response(`Token exchange failed: ${await tokenResponse.text()}`, { status: 500, headers: corsHeaders() });
+      const errorText = await tokenResponse.text();
+      return new Response(`Token exchange failed: ${errorText}`, { status: 400, headers: corsHeaders() });
     }
 
     const { access_token } = await tokenResponse.json();
@@ -78,7 +79,7 @@ async function handleRequest(request) {
 function corsHeaders() {
   return {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "https://vmusichub.com",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400"
