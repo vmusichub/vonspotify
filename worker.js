@@ -4,7 +4,7 @@ addEventListener("fetch", (event) => {
 
 async function handleRequest(request) {
   if (request.method === "OPTIONS") {
-    return handleCors();
+    return handleCors(); // Handle CORS preflight requests
   }
 
   if (request.method !== "POST") {
@@ -59,17 +59,14 @@ async function handleRequest(request) {
       return new Response(`Profile fetch failed: ${await profileResponse.text()}`, { status: 500, headers: corsHeaders() });
     }
 
-    const { display_name, images } = await profileResponse.json();
+    const userProfile = await profileResponse.json();
+    const responseData = {
+      access_token,
+      profile_picture: userProfile.images?.[0]?.url || "",
+      user_name: userProfile.display_name || "Spotify User"
+    };
 
-    return new Response(
-      JSON.stringify({
-        access_token,
-        profile_picture: images.length > 0 ? images[0].url : "",
-        user_name: display_name || "Spotify User"
-      }),
-      { headers: corsHeaders() }
-    );
-
+    return new Response(JSON.stringify(responseData), { headers: corsHeaders() });
   } catch (error) {
     return new Response(`Error: ${error.message}`, { status: 500, headers: corsHeaders() });
   }
@@ -86,5 +83,8 @@ function corsHeaders() {
 }
 
 function handleCors() {
-  return new Response(null, { status: 204, headers: corsHeaders() });
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders()
+  });
 }
