@@ -8,13 +8,7 @@
         (async function() {
             const params = new URLSearchParams(window.location.search);
             const code = params.get("code");
-            const error = params.get("error");
 
-            if (error) {
-                // Auth error, go back
-                window.location.href = "https://vmusichub.com/#vonspotify";
-                return;
-            }
             if (!code) {
                 window.location.href = "https://vmusichub.com/#vonspotify";
                 return;
@@ -32,10 +26,6 @@
                 if (data.profile_picture && data.user_name) {
                     localStorage.setItem("spotify_pfp", data.profile_picture);
                     localStorage.setItem("spotify_name", data.user_name);
-                } else {
-                    // fallback: clear
-                    localStorage.removeItem("spotify_pfp");
-                    localStorage.removeItem("spotify_name");
                 }
 
                 window.location.href = "https://vmusichub.com/#vonspotify";
