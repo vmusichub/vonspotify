@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // Read from localStorage
     const profilePic = localStorage.getItem("spotify_pfp");
     const userName = localStorage.getItem("spotify_name");
     const pfpElement = document.getElementById("spotify_pfp");
@@ -7,11 +8,20 @@ document.addEventListener("DOMContentLoaded", function() {
     const followersElement = document.getElementById("v_followers");
     const artistId = "3JsHnjpbhX4SnySpvpa9DK";
 
-    // Helper: Show/Hide elements
-    function show(el) { if (el) el.style.display = ""; }
-    function hide(el) { if (el) el.style.display = "none"; }
+    // Helper: Show/hide, detect type
+    function show(el) {
+        if (!el) return;
+        if (el.tagName === "IMG") {
+            el.style.display = "inline-block";
+        } else {
+            el.style.display = "block";
+        }
+    }
+    function hide(el) {
+        if (el) el.style.display = "none";
+    }
 
-    // 1. Handle profile info
+    // 1. Profile info: show/hide, fill
     if (profilePic && userName) {
         if (pfpElement) {
             pfpElement.src = profilePic;
@@ -30,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (loginBtn) show(loginBtn);
     }
 
-    // 2. Always fetch followers count for artist (public info)
+    // 2. Followers count: always public
     if (followersElement) {
         fetch("https://spotify-auth.vonmusichub.workers.dev/", {
             method: "POST",
@@ -39,22 +49,30 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.followers !== undefined) {
+            if (typeof data.followers === "number") {
                 followersElement.textContent = data.followers.toLocaleString();
+                show(followersElement);
             } else {
                 followersElement.textContent = "-";
+                show(followersElement);
             }
         })
         .catch(() => {
             followersElement.textContent = "-";
+            show(followersElement);
         });
     }
 
-    // 3. Optionally: Log out logic (not shown in Carrd UI, but for dev)
-    // Example: Add a button with id "spotify_logout" and this:
-    // document.getElementById("spotify_logout").addEventListener("click", function() {
-    //     localStorage.removeItem("spotify_pfp");
-    //     localStorage.removeItem("spotify_name");
-    //     location.reload();
-    // });
+    // 3. OPTIONAL: Logout button logic, for dev/debug
+    // If you add <button id="spotify_logout">Log out</button> to Carrd, enable this:
+    /*
+    const logoutBtn = document.getElementById("spotify_logout");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function() {
+            localStorage.removeItem("spotify_pfp");
+            localStorage.removeItem("spotify_name");
+            location.reload();
+        });
+    }
+    */
 });
