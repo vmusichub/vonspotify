@@ -23,7 +23,7 @@
 
                 const data = await response.json();
 
-                if (data.access_token) {
+                if (data.profile_picture && data.user_name) {
                     localStorage.setItem("spotify_pfp", data.profile_picture);
                     localStorage.setItem("spotify_name", data.user_name);
                 }
