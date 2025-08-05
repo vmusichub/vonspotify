@@ -3,8 +3,3 @@ main = "worker.js"
 compatibility_date = "2024-03-01"
 account_id = "54bac8a000700ffeba01d5ef26436bd5"
 workers_dev = true
-
-[vars]
-CLIENT_ID = "3644afee558843dd8aadaec4d0a6ebb1"
-CLIENT_SECRET = "8786f75ee7cd4e8cb5bb5e3e45c3c101"
-REDIRECT_URI = "https://vmusichub.github.io/vonspotify/redirect.html"
