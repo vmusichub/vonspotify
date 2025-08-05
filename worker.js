@@ -13,7 +13,6 @@ async function handleRequest(request) {
 
       // If artist_id present, fetch artist followers
       if (artist_id) {
-        // Use Client Credentials flow for public data (followers)
         const CLIENT_ID = globalThis.CLIENT_ID;
         const CLIENT_SECRET = globalThis.CLIENT_SECRET;
 
@@ -37,7 +36,6 @@ async function handleRequest(request) {
 
         const { access_token } = await tokenResponse.json();
 
-        // Get artist info
         const artistResponse = await fetch(`https://api.spotify.com/v1/artists/${artist_id}`, {
           headers: { "Authorization": `Bearer ${access_token}` }
         });
